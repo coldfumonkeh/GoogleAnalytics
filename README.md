@@ -26,7 +26,7 @@ Firstly, set up the **init()** constructor method. This _could be_ in your Appli
 					approval_prompt	=	'force'
 				) />
 
-Full details on the values within the **init()** method can be found in the documentation section [Forming the URL](https://developers.google.com/accounts/docs/OAuth2WebServer)
+Full details on the values within the **init()** method can be found in the documentation section "[Forming the URL](https://developers.google.com/accounts/docs/OAuth2WebServer)"
 
 Logging In
 ----------
