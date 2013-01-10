@@ -123,11 +123,11 @@ The component contains a few methods that obtain specific sets of information ba
 
 **getProfileData()** will return a high-level snapshot of common analytical data for the provided profile ID, returning a struct of information containing:
 
-*visit snapshot
-*visitor loyalty
-*visit chart
-*country chart
-*top pages
+* visit snapshot
+* visitor loyalty
+* visit chart
+* country chart
+* top pages
 
 To get this information, simply run the method as in the example below:
 
