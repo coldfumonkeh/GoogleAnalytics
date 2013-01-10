@@ -129,6 +129,8 @@ The component contains a few methods that obtain specific sets of information ba
 - country chart
 - top pages
 
+To get this information, simply run the method as in the example below:
+
 	<cfset stuProfileData = application.objGA.getProfileData(
 					profileID		=	"< your profile ID >", 
 					start_date		=	"2009-05-20", 
