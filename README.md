@@ -71,7 +71,7 @@ Exchange this temporary code for an access token, which you can do using the **g
 		
 	</cfif>
 
-Once the user is logged in using the access token details, you have a limit for the life span of that token, which can be seen in the returned **expires_in_raw** and expires_in** values from the **authResponse** value, returned from the method.
+Once the user is logged in using the access token details, you have a limit for the life span of that token, which can be seen in the returned **expires_in_raw** and **expires_in** values from the **authResponse** value, returned from the method.
 
 ### Revoking Access ###
 
@@ -89,7 +89,7 @@ In this example, we will provide the logged in user a link to a new page:
 
 	</cfif>
 
-When landing on that page, the **revokeAccess()** method is called, before they are redirected back to the index page:
+When landing on that page, the **revokeAccess()** method is called before they are redirected back to the index page:
 
 	<!--- Revoke access --->
 	<cfset revokeAccess = application.objGA.revokeAccess() />
@@ -119,15 +119,15 @@ The default dates (if not provided in the method call itself) are for the previo
 
 ## Specific Methods ##
 
-The component contains a few methods that obtain specific sets of information based upon the proviced metrics and dimensions.
+The component contains a few methods that obtain specific sets of information based upon the provided metrics and dimensions.
 
 **getProfileData()** will return a high-level snapshot of common analytical data for the provided profile ID, returning a struct of information containing:
 
-* visit snapshot
-* visitor loyalty
-* visit chart
-* country chart
-* top pages
+- visit snapshot
+- visitor loyalty
+- visit chart
+- country chart
+- top pages
 
 	<cfset stuProfileData = application.objGA.getProfileData(
 					profileID		=	"< your profile ID >", 
