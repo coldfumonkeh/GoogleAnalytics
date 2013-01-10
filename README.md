@@ -7,7 +7,7 @@ A ColdFusion wrapper to interact with the Google Analytics Core Reporting API an
 Getting Started
 ===============
 
-To integrate the Google Analytics Core Reporting data into your ColdFusion application, you will first need to register your app in the "Google API Console":https://code.google.com/apis/console/b/0/
+To integrate the Google Analytics Core Reporting data into your ColdFusion application, you will first need to register your app in the [Google API Console](https://code.google.com/apis/console/b/0/)
 
 Once complete, make a note of your client id and client secret values, as well as the callback URL you specified. These values will be entered into the **init()** method of the component.
 
@@ -26,7 +26,7 @@ Firstly, set up the **init()** constructor method. This _could be_ in your Appli
 					approval_prompt	=	'force'
 				) />
 
-Full details on the values within the **init()** method can be found in the documentation section "Forming the URL":https://developers.google.com/accounts/docs/OAuth2WebServer
+Full details on the values within the **init()** method can be found in the documentation section [Forming the URL](https://developers.google.com/accounts/docs/OAuth2WebServer)
 
 Logging In
 ----------
@@ -39,7 +39,12 @@ To do so, you need to generate a specific URL, which the component will do for y
 
 The resulting URL will look something like this:
 
-	https://accounts.google.com/o/oauth2/auth?scope=https://www.googleapis.com/auth/analytics.readonly&redirect_uri=http://127.0.0.1:8500/googleanalytics/index.cfm&response_type=code&client_id=<your client id here>&access_type=online
+	https://accounts.google.com/o/oauth2/auth?
+		scope=https://www.googleapis.com/auth/analytics.readonly
+		&redirect_uri=http://127.0.0.1:8500/googleanalytics/index.cfm
+		&response_type=code
+		&client_id=<your client id here>
+		&access_type=online
 
 
 Assuming a successful authentication, the OAuth process will relocate to the callabck URI defined in your app settings with an appended query string parameter, **code**.
@@ -73,4 +78,4 @@ Exchange this temporary code for an access token, which you can do using the **g
 Official References
 ===================
 
-To find out more about the Core Reporting API (v3), check out the "official documentation":https://developers.google.com/analytics/devguides/reporting/core/v3/reference from Google.
+To find out more about the Core Reporting API (v3), check out the [official documentation](https://developers.google.com/analytics/devguides/reporting/core/v3/reference) from Google.
