@@ -9,12 +9,12 @@ Getting Started
 
 To integrate the Google Analytics Core Reporting data into your ColdFusion application, you will first need to register your app in the "Google API Console":https://code.google.com/apis/console/b/0/
 
-Once complete, make a note of your client id and client secret values, as well as the callback URL you specified. These values will be entered into the *init()* method of the component.
+Once complete, make a note of your client id and client secret values, as well as the callback URL you specified. These values will be entered into the **init()** method of the component.
 
 Instantiation
 -------------
 
-Firstly, set up the *init()* constructor method. This _could be_ in your Application scope for persistence.
+Firstly, set up the **init()** constructor method. This _could be_ in your Application scope for persistence.
 
 	<cfset application.objGA = new com.coldfumonkeh.GoogleAnalytics(
 					client_id		=	'< your client id value >',
@@ -33,7 +33,7 @@ Logging In
 
 To access the data from the API, the user will have to authenticate by signing in to their Google account. This will also prompt them to grant access (should they wish to) for your application to read their profile data for them. This is the first step in the OAuth2 process.
 
-To do so, you need to generate a specific URL, which the component will do for you using the *getLoginURL()* method:
+To do so, you need to generate a specific URL, which the component will do for you using the **getLoginURL()** method:
 
 	<cfoutput><a href="#application.objGA.getLoginURL()#">Login and Authenticate</a></cfoutput>
 
