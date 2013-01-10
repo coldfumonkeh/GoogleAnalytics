@@ -142,7 +142,7 @@ The component contains a few methods that obtain specific sets of information ba
 					profileID		=	"< your profile ID >", 
 					start_date		=	"2009-05-20", 
 					end_date		=	"2012-12-12", 
-					uri				=	"your-page-or-blog-uri" // minus the domain and leading '/'
+					uri				=	"your-page-or-blog-uri"
 				) />
 
 
