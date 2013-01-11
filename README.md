@@ -44,7 +44,7 @@ The resulting URL will look something like this:
 		&access_type=online
 
 
-Assuming a successful authentication, the OAuth process will relocate to the callabck URI defined in your app settings with an appended query string parameter, **code**.
+Assuming a successful authentication, the OAuth process will relocate to the callback URI defined in your app settings with an appended query string parameter, **code**.
 
 Exchange this temporary code for an access token, which you can do using the **getAccessToken()** method from this component, like so:
 
