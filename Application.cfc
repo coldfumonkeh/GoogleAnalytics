@@ -10,15 +10,18 @@
 				returntype="boolean"
 				output="false"
 				hint="Fires when the application is first created.">
-					
+			
+			<cftry>		
 			<cfif structKeyExists(session, "google_api_auth")>
 					<cfset structDelete(session,"google_api_auth")>
 			</cfif>
+			<cfcatch>
+			</cfcatch>
+			</cftry>
 			<cfset application.objGA = new com.coldfumonkeh.GoogleAnalytics(
-						client_id		=	'< your client id value >',
-						client_secret	=	'< your client secret value >',
-						redirect_uri	=	'http://127.0.0.1:8500/googleanalytics/index.cfm',
-						scope			=	'https://www.googleapis.com/auth/analytics.readonly',
+						client_id 		=   '< your client id value >',
+						client_secret 	= 	'< your client secret value>',
+						redirect_uri	=	'http://localhost/googleanalytics/index.cfm',
 						state			=	'',
 						access_type		=	'online',
 						approval_prompt	=	'force'
