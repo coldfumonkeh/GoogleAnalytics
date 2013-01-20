@@ -17,7 +17,19 @@
 <!--- token_storage can be 'session' or 'application' --->
 <cfproperty name="token_storage"	type="string" /> 
 
-<cffunction name="createTokenStruct" access="private" output="false">
+<cffunction name="setToken_storage" access="private" output="false">
+	<cfargument name="token_storage" type="string" required="true">
+	
+	<!--- enforce constraint on token_storage value --->
+	<cfif listFindNoCase('application,session', arguments.token_storage, ",") EQ 0>
+		<cfthrow message="token_storage value must be 'session' or 'application'">
+	</cfif>
+
+	<cfset variables.token_storage = arguments.token_storage>
+</cffunction>
+
+<cffunction name="createTokenStruct" access="private" output="false" hint="create a token structure in the scope specified by property token_storage">
+	<!--- generate the structure name from the client_id so we are not likely to have a name conflict --->
 	<cfif NOT isDefined('#getToken_storage()#.oauth2#getClient_id()#')>
 		<cfif getToken_storage() EQ 'session'>
 			<cfset session['oauth2#getClient_id()#'] = structNew()>
@@ -30,7 +42,11 @@
 	</cfif>
 </cffunction>
 
-<cffunction name="getTokenStruct" access="private" returntype="struct" output="false">
+<cffunction name="getTokenStruct" access="private" returntype="struct" output="false" hint="returns the oauth token structure">
+	<!--- first make sure the token structure exists --->
+	<cfset createTokenStruct()>
+	
+	<!--- return the token structure --->
 	<cfif getToken_storage() EQ 'session'>
 		<cfreturn session['oauth2#getClient_id()#']>
 	<cfelse>
@@ -38,20 +54,20 @@
 	</cfif>
 </cffunction>
 
-<cffunction name="getAccess_token" access="public" returntype="string" output="false">
+<cffunction name="getAccess_token" access="public" returntype="string" output="false" hint="getter for oauth access_token">
 	<cfreturn getTokenStruct().access_token>
 </cffunction>
 
-<cffunction name="setAccess_token" access="public" output="false">
+<cffunction name="setAccess_token" access="private" output="false" hint="setter for oauth access_token">
 	<cfargument name="access_token" type="string" required="true">
 	<cfset getTokenStruct().access_token = arguments.access_token>
 </cffunction>
 
-<cffunction name="getRefresh_token" access="public" returntype="string" output="false">
+<cffunction name="getRefresh_token" access="public" returntype="string" output="false" hint="getter for oauth refresh_token">
 	<cfreturn getTokenStruct().access_token>
 </cffunction>
 
-<cffunction name="setRefresh_token" access="public" output="false">
+<cffunction name="setRefresh_token" access="private" output="false" hint="setter for oauth refresh_token">
 	<cfargument name="refresh_token" type="string" required="true">
 	<cfset getTokenStruct().refresh_token = arguments.refresh_token>
 </cffunction>
