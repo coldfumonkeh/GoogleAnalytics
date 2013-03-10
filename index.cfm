@@ -20,6 +20,8 @@
 	</cfif>
 	
 </cfif>
+
+<cfdump var="#session#">		
 		
 <!---
 	If the SESSION key exists, we seem to have access to the API.
