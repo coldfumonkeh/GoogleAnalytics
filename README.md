@@ -184,6 +184,9 @@ If you have the refresh and access token details, you can also set these directl
 	<cfset application.objGA.setRefresh_token('< your refresh token value >') />
 	<cfset application.objGA.setAccess_token('< your access token value >') />
 
+# Management API #
+
+More details about the management API methods will follow shortly...
 
 # Official References #
 
