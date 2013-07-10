@@ -70,7 +70,9 @@ Changelog:
 		<cfset setScope(strScopeURL) />
 	</cffunction>
 	
+	<!--- ****************************** --->
 	<!--- START OAuth and access methods --->
+	<!--- ****************************** --->
 		
 	<cffunction name="getLoginURL" access="public" output="false" returntype="String" hint="I generate the link to login and retrieve the authentication code.">
 		<cfset var strLoginURL = "" />
@@ -108,15 +110,18 @@ Changelog:
 	
 	<cffunction name="revokeAccess" access="public" output="false" hint="I revoke access to this application. You must pass in either the refresh token or access token.">
 		<cfargument name="token" type="string" required="true" default="#getAccess_token()#" hint="The access token or refresh token generated from the successful OAuth authentication process." />
-    		<cfset var strURL = "https://accounts.google.com/o/oauth2/revoke?token=" & arguments.token />		
+    		<cfset var strURL = getBaseAuthEndpoint() & "revoke?token=" & arguments.token />		
 			<cfhttp url="#strURL#" />
 		<cfreturn cfhttp />
 	</cffunction>
 	
+	<!--- **************************** --->
 	<!--- END OAuth and access methods --->
+	<!--- **************************** --->
 		
-	
+	<!--- ******************************** --->
 	<!--- START Core Reporting API Methods --->
+	<!--- ******************************** --->
 		
 	<cffunction name="getProfileData" access="public" output="false" returntype="Struct" hint="I return data for the selected profile.">
 		<cfargument name="profileID" 	required="true" type="string" 								hint="The analytics profile ID." />
@@ -154,14 +159,15 @@ Changelog:
 		<cfreturn getReporting().queryAnalytics(argumentCollection=arguments) />
 	</cffunction>
 		
+	<!--- ****************************** --->
 	<!--- END Core Reporting API Methods --->
+	<!--- ****************************** --->
 		
-		
+	<!--- **************************** --->
 	<!--- START Management API Methods --->
-		
+	<!--- **************************** --->
+			
 	<!--- START Management.accounts --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts --->
 	<cffunction name="listAccounts" access="public" output="false" hint="I return all accounts to which the authorized user has access.">
 		<cfargument name="max_results" 	required="false" type="numeric" 								hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 	required="false" type="numeric" 								hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
@@ -171,11 +177,7 @@ Changelog:
 	
 	<!--- END Management.accounts --->
 		
-		
-		
 	<!--- START Management.webproperties --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties --->
 	<cffunction name="listWebProperties" access="public" output="false" hint="I return all web properties to which the authorized user has access.">
 		<cfargument name="accountID" 	required="true" 	type="string" 									hint="Account ID to retrieve web properties for. Can either be a specific account ID or '~all', which refers to all the accounts that user has access to." />
 		<cfargument name="max_results" 	required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
@@ -183,14 +185,9 @@ Changelog:
 		<cfargument name="access_token" required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
     	<cfreturn getManagement().listWebProperties(argumentCollection=arguments) />
 	</cffunction>
-		
 	<!--- END Management.webproperties --->
 		
-		
-	
 	<!--- START Management.profiles --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/profiles --->
 	<cffunction name="listProfiles" access="public" output="false" hint="I return all profiles to which the authorized user has access.">
 		<cfargument name="accountId" 		required="true" 	type="string" 									hint="Account ID to retrieve web properties for. Can either be a specific account ID or '~all', which refers to all the accounts that user has access to." />
 		<cfargument name="webPropertyId" 	required="true" 	type="string" 									hint="Web property ID for the profiles to retrieve. Can either be a specific web property ID or '~all', which refers to all the web properties to which the user has access." />
@@ -198,15 +195,10 @@ Changelog:
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
     	<cfreturn getManagement().listProfiles(argumentCollection=arguments) />
-	</cffunction>
-		
+	</cffunction>	
 	<!--- END Management.profiles --->
-		
-		
-		
+			
 	<!--- START Management.goals --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/profiles/profileId/goals --->
 	<cffunction name="listGoals" access="public" output="false" hint="I return all goals to which the authorized user has access.">
 		<cfargument name="accountId" 		required="true" 	type="string" 									hint="Account ID to retrieve web properties for. Can either be a specific account ID or '~all', which refers to all the accounts that user has access to." />
 		<cfargument name="webPropertyId" 	required="true" 	type="string" 									hint="Web property ID for the profiles to retrieve. Can either be a specific web property ID or '~all', which refers to all the web properties to which the user has access." />
@@ -215,16 +207,10 @@ Changelog:
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
     	<cfreturn getManagement().listGoals(argumentCollection=arguments) />
-	</cffunction>
-	
-		
+	</cffunction>	
 	<!--- END Management.goals --->
-		
-		
-		
+			
 	<!--- START Management.segments --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/segments --->
 	<cffunction name="listSegments" access="public" output="false" hint="I return all advanced segments to which the authorized user has access.">
 		<cfargument name="accountId" 		required="true" 	type="string" 									hint="Account ID to retrieve web properties for. Can either be a specific account ID or '~all', which refers to all the accounts that user has access to." />
 		<cfargument name="webPropertyId" 	required="true" 	type="string" 									hint="Web property ID for the profiles to retrieve. Can either be a specific web property ID or '~all', which refers to all the web properties to which the user has access." />
@@ -232,16 +218,10 @@ Changelog:
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
     	<cfreturn getManagement().listSegments(argumentCollection=arguments) />
-	</cffunction>
-	
-		
+	</cffunction>	
 	<!--- END Management.segments --->
 		
-		
-	
 	<!--- START Management.customDataSources --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/customDataSources --->
 	<cffunction name="listCustomDataSources" access="public" output="false" hint="I return all advanced segments to which the authorized user has access.">
 		<cfargument name="accountId" 		required="true" 	type="string" 									hint="Account ID to retrieve web properties for. Can either be a specific account ID or '~all', which refers to all the accounts that user has access to." />
 		<cfargument name="webPropertyId" 	required="true" 	type="string" 									hint="Web property ID for the profiles to retrieve. Can either be a specific web property ID or '~all', which refers to all the web properties to which the user has access." />
@@ -249,16 +229,10 @@ Changelog:
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
     	<cfreturn getManagement().listCustomDatasources(argumentCollection=arguments) />
-	</cffunction>
-	
-		
+	</cffunction>	
 	<!--- END Management.customDataSources --->
 		
-		
-	
 	<!--- START Management.dailyUploads --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/customDataSources/customDataSourceId/dailyUploads --->
 	<cffunction name="listDailyUploads" access="public" output="false" hint="I return all advanced segments to which the authorized user has access.">
 		<cfargument name="accountId" 			required="true" 	type="string" 									hint="Account ID to retrieve web properties for. Can either be a specific account ID or '~all', which refers to all the accounts that user has access to." />
 		<cfargument name="customDataSourceId" 	required="true" 	type="string" 									hint="Custom data source Id for daily uploads to retrieve." />
@@ -270,21 +244,9 @@ Changelog:
 		<cfargument name="access_token" 		required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
     	<cfreturn getManagement().listDailyUploads(argumentCollection=arguments) />
 	</cffunction>
-	
-		
-	<!--- POST https://www.googleapis.com/upload/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/customDataSources/customDataSourceId/dailyUploads/date/uploads --->
-	
-		
-	<!--- DELETE https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/customDataSources/customDataSourceId/dailyUploads/date --->
-	
-		
 	<!--- END Management.dailyUploads --->
 		
-		
-		
 	<!--- START Management.experiments --->
-	<!--- LIST --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/profiles/profileId/experiments --->
 	<cffunction name="listExperiments" access="public" output="false" hint="">
 		<cfargument name="accountID" 		required="true" 	type="string" 									hint="The analytics account ID." />
 		<cfargument name="webPropertyID" 	required="true" 	type="string" 									hint="The analytics web property ID." />
@@ -295,8 +257,6 @@ Changelog:
 		<cfreturn getManagement().listExperiments(argumentCollection=arguments) />
 	</cffunction>
 	
-	<!--- GET --->
-	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/profiles/profileId/experiments/experimentId --->
 	<cffunction name="getExperiment" access="public" output="false" hint="">
 		<cfargument name="accountId" 		required="true" 	type="string" 													hint="The analytics account ID." />
 		<cfargument name="webPropertyId" 	required="true" 	type="string" 													hint="The analytics web property ID." />
@@ -306,8 +266,6 @@ Changelog:
 		<cfreturn getManagement().getExperiment(argumentCollection=arguments) />	
 	</cffunction>
 	
-	<!--- INSERT --->
-	<!--- POST https://www.googleapis.com/analytics/v3/management/accounts/accountId/webproperties/webPropertyId/profiles/profileId/experiments --->
 	<cffunction name="insertExperiment" access="public" output="false" hint="I insert a new experiment for the authorized user.">
 		<cfargument name="accountId" 						required="true" 	type="string" 									hint="The analytics account ID." />
 		<cfargument name="webPropertyId" 					required="true" 	type="string" 									hint="The analytics web property ID." />
@@ -327,12 +285,10 @@ Changelog:
 		<cfargument name="winnerConfidenceLevel" 			required="false"	type="numeric"									hint="A floating-point number between 0 and 1. Specifies the necessary confidence level to choose a winner. This field may not be changed for an experiments whose status is ENDED." />
 		<cfreturn getManagement().insertExperiment(argumentCollection=arguments) /> 
 	</cffunction>
-
 	<!--- END Management.experiments --->
-		
-
-	<!--- END Management API Methods --->
-		
 	
+	<!--- ************************** --->
+	<!--- END Management API Methods --->
+	<!--- ************************** --->
 	
 </cfcomponent>
