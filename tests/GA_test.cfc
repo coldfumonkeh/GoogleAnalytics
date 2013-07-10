@@ -26,6 +26,7 @@
 				) />
 		<cfset objGA.setRefresh_token(variables.refreshToken) />
 		<cfset objGA.setAccess_token(variables.accessToken) />
+		<!---<cfset objGA.refreshToken() />--->
     </cffunction>
 
     <!--- This will run after every single test in this test case. --->
@@ -44,6 +45,7 @@
 	<!--- Initial assertion tests (object and properties values) --->
 	<cffunction name="Check_Google_Analytics_Object_Is_Valid_Object" access="public" returntype="void">
 		<cfset assertTrue(isObject(objGA)) />
+		<cfset debug(objGA) />
 	</cffunction>
 	
 	<cffunction name="Check_Read_Only_Scope_Is_Correct" access="public" returntype="void">
@@ -62,14 +64,6 @@
 	<cffunction name="Check_Object_Is_In_Online_Mode" returntype="void" access="public">
 		<cfset objGA.setAccess_type("online") />
 		<cfset assertEquals("online", objGA.getAccess_type()) />
-	</cffunction>
-	
-	<cffunction name="Check_Stored_Access_Token_Is_A_Match">
-		<cfset assertEquals(variables.accessToken, objGA.getAccess_token()) />
-	</cffunction>
-	
-	<cffunction name="Check_Stored_Refresh_Token_Is_A_Match">
-		<cfset assertEquals(variables.refreshToken, objGA.getRefresh_token()) />
 	</cffunction>
 	
 	<!--- Request / Response API tests --->

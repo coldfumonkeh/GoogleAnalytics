@@ -1,5 +1,9 @@
-<cfdump var="#application.objGA.listAccounts()#">
+<cfset application.objGA.refreshToken()>
+<!---<cfdump var="#application.objGA.listWebProperties(accountid="37540125")#">--->
 
+<cfdump var="#application.objGA.getProfileData(
+	profileID		=	"67782753"
+)#">
 
 <!---<!---<cfif structKeyExists(URL, 'code')>
 	<!---

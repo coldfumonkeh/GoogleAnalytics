@@ -28,26 +28,28 @@ Changelog:
 	
 	<!--- Sub components --->
 	<cfproperty name="management"		type="Management" />
+	<cfproperty name="mcfreporting"		type="MCFReporting" />
 	<cfproperty name="reporting"		type="Reporting" />
 	
 	<!--- Google API Details --->
-	<cfproperty name="baseAuthEndpoint"			type="string" />	
+	<cfproperty name="baseAuthEndpoint"	type="string" />	
 	
 	<!--- Auth details from the authentication --->
 	<cfproperty name="access_token"		type="string" default="" />
 	<cfproperty name="refresh_token"	type="string" default="" />
 	
 	<cffunction name="init" access="public" output="false" hint="The constructor method.">
-		<cfargument name="client_id" 				type="string" required="true"						hint="Indicates the client that is making the request. The value passed in this parameter must exactly match the value shown in the APIs Console." />
-		<cfargument name="client_secret" 			type="string" required="true"						hint="The secret key associated with the client." />
-		<cfargument name="redirect_uri" 			type="string" required="true"						hint="Determines where the response is sent. The value of this parameter must exactly match one of the values registered in the APIs Console (including the http or https schemes, case, and trailing '/')." />
-		<cfargument name="readonly"					type="boolean"required="false" default="true"		hint="Is access authorized for read only or write? This defines the SCOPE sent to the OAuth request." />
-		<cfargument name="state" 					type="string" required="true"						hint="Indicates any state which may be useful to your application upon receipt of the response. The Google Authorization Server roundtrips this parameter, so your application receives the same value it sent. Possible uses include redirecting the user to the correct resource in your site, nonces, and cross-site-request-forgery mitigations." />
-		<cfargument name="access_type" 				type="string" required="false" default="online" 	hint="ONLINE or OFFLINE. Indicates if your application needs to access a Google API when the user is not present at the browser. This parameter defaults to online. If your application needs to refresh access tokens when the user is not present at the browser, then use offline. This will result in your application obtaining a refresh token the first time your application exchanges an authorization code for a user." />
-		<cfargument name="approval_prompt"			type="string" required="false" default="auto" 		hint="AUTO or FORCE. Indicates if the user should be re-prompted for consent. The default is auto, so a given user should only see the consent page for a given set of scopes the first time through the sequence. If the value is force, then the user sees a consent page even if they have previously given consent to your application for a given set of scopes." />
-		<cfargument name="baseAuthEndpoint"			type="string" required="false" default="https://accounts.google.com/o/oauth2/" 					hint="The base URL to which we will make the OAuth requests." />
-		<cfargument name="reportingAPIEndpoint"		type="string" required="false" default="https://www.googleapis.com/analytics/v3/data/ga" 		hint="The base reporting API URL to which we will make the API requests." />
-		<cfargument name="managementAPIEndpoint"	type="string" required="false" default="https://www.googleapis.com/analytics/v3/management/" 	hint="The base management API URL to which we will make the API requests." />
+		<cfargument name="client_id" 				type="string" 	required="true"						hint="Indicates the client that is making the request. The value passed in this parameter must exactly match the value shown in the APIs Console." />
+		<cfargument name="client_secret" 			type="string" 	required="true"						hint="The secret key associated with the client." />
+		<cfargument name="redirect_uri" 			type="string" 	required="true"						hint="Determines where the response is sent. The value of this parameter must exactly match one of the values registered in the APIs Console (including the http or https schemes, case, and trailing '/')." />
+		<cfargument name="readonly"					type="boolean"	required="false" default="true"		hint="Is access authorized for read only or write? This defines the SCOPE sent to the OAuth request." />
+		<cfargument name="state" 					type="string" 	required="true"						hint="Indicates any state which may be useful to your application upon receipt of the response. The Google Authorization Server roundtrips this parameter, so your application receives the same value it sent. Possible uses include redirecting the user to the correct resource in your site, nonces, and cross-site-request-forgery mitigations." />
+		<cfargument name="access_type" 				type="string" 	required="false" default="online" 	hint="ONLINE or OFFLINE. Indicates if your application needs to access a Google API when the user is not present at the browser. This parameter defaults to online. If your application needs to refresh access tokens when the user is not present at the browser, then use offline. This will result in your application obtaining a refresh token the first time your application exchanges an authorization code for a user." />
+		<cfargument name="approval_prompt"			type="string" 	required="false" default="auto" 	hint="AUTO or FORCE. Indicates if the user should be re-prompted for consent. The default is auto, so a given user should only see the consent page for a given set of scopes the first time through the sequence. If the value is force, then the user sees a consent page even if they have previously given consent to your application for a given set of scopes." />
+		<cfargument name="baseAuthEndpoint"			type="string" 	required="false" default="https://accounts.google.com/o/oauth2/" 				hint="The base URL to which we will make the OAuth requests." />
+		<cfargument name="reportingAPIEndpoint"		type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/data/ga" 		hint="The base reporting API URL to which we will make the API requests." />
+		<cfargument name="managementAPIEndpoint"	type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/management/" 	hint="The base management API URL to which we will make the API requests." />
+		<cfargument name="mcfreportingAPIEndpoint"	type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/data/mcf"		hint="The base multi-channel funnels reporting API URL to which we will make the API requests." />
 			<cfset setClient_id(arguments.client_id) />
 			<cfset setClient_secret(arguments.client_secret) />
 			<cfset setRedirect_uri(arguments.redirect_uri) />
@@ -55,8 +57,8 @@ Changelog:
 			<cfset setState(arguments.state) />
 			<cfset setAccess_type(arguments.access_type) />
 			<cfset setBaseAuthEndpoint(arguments.baseAuthEndpoint) />
-			<!--- Instantiate sub components --->
 			<cfset setManagement(createObject("component","Management").init(arguments.managementAPIEndpoint)) />
+			<cfset setMCFReporting(createObject("component","MCFReporting").init(arguments.mcfreportingAPIEndpoint)) />
 			<cfset setReporting(createObject("component","Reporting").init(arguments.reportingAPIEndpoint)) />
 		<cfreturn this />
 	</cffunction>
@@ -124,10 +126,10 @@ Changelog:
 	<!--- ******************************** --->
 		
 	<cffunction name="getProfileData" access="public" output="false" returntype="Struct" hint="I return data for the selected profile.">
-		<cfargument name="profileID" 	required="true" type="string" 								hint="The analytics profile ID." />
-		<cfargument name="start_date" 	required="true" type="string" 								hint="The first date of the date range for which you are requesting the data." />
-		<cfargument name="end_date" 	required="true" type="string" 								hint="The last date of the date range for which you are requesting the data." />
-		<cfargument name="access_token" required="true"	type="string" default="#getAccess_token()#" hint="The access token generated from the successful OAuth authentication process." />
+		<cfargument name="profileID" 	required="true" type="string" 													hint="The analytics profile ID." />
+		<cfargument name="start_date" 	required="true" type="string" 	default="#DateFormat(Now()-7, "yyyy-mm-dd")#"	hint="The first date of the date range for which you are requesting the data." />
+		<cfargument name="end_date" 	required="true" type="string" 	default="#DateFormat(Now(), "yyyy-mm-dd")#"		hint="The last date of the date range for which you are requesting the data." />
+		<cfargument name="access_token" required="true"	type="string" 	default="#getAccess_token()#" 					hint="The access token generated from the successful OAuth authentication process." />
 		<cfreturn getReporting().getProfileData(argumentCollection=arguments) />
 	</cffunction>
 	
@@ -174,7 +176,6 @@ Changelog:
 		<cfargument name="access_token" required="true"  type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
 		<cfreturn getManagement().listAccounts(argumentCollection=arguments) />
 	</cffunction>
-	
 	<!--- END Management.accounts --->
 		
 	<!--- START Management.webproperties --->
