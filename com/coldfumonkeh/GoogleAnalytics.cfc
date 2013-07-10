@@ -141,6 +141,11 @@ Changelog:
 		<cfreturn getReporting().getPageVistsForURI(argumentCollection=arguments) />
 	</cffunction>
 		
+	<!---
+		Documentation for available dimensions and metrics can be found here:
+		https://developers.google.com/analytics/devguides/reporting/core/dimsmets
+	--->
+		
 	<cffunction name="queryAnalytics" access="public" output="false" returntype="Struct" hint="I make a generic request to the Google Analytics API, based upon the parameters you provide me.">
 		<cfargument name="profileID" 	required="true" 	type="string" 													hint="The analytics profile ID." />
 		<cfargument name="start_date" 	required="true" 	type="string"	default="#DateFormat(Now()-7, "yyyy-mm-dd")#" 	hint="The first date of the date range for which you are requesting the data." />
@@ -155,12 +160,41 @@ Changelog:
 		<cfargument name="fields" 		required="false" 	type="string" 													hint="Selector specifying a subset of fields to include in the response." />
 		<cfargument name="prettyPrint" 	required="false" 	type="string" 													hint="Returns response with indentations and line breaks. Default false." />
 		<cfargument name="access_token" required="true"		type="string"	default="#getAccess_token()#"					hint="The access token generated from the successful OAuth authentication process." />
+			<cfset arguments.reportType	= "ga" />
 		<cfreturn getReporting().queryAnalytics(argumentCollection=arguments) />
 	</cffunction>
 		
 	<!--- ****************************** --->
 	<!--- END Core Reporting API Methods --->
 	<!--- ****************************** --->
+		
+	<!--- ************************************************* --->
+	<!--- START Multi-Channel Funnels Reporting API Methods --->
+	<!--- ************************************************* --->
+		
+	<!---
+		Documentation for available dimensions and metrics can be found here:
+		https://developers.google.com/analytics/devguides/reporting/mcf/dimsmets/	
+	--->
+	
+	<cffunction name="queryMCFAnalytics" access="public" output="false" returntype="Struct" hint="I make a generic request to the Google Analytics API, based upon the parameters you provide me.">
+		<cfargument name="profileID" 	required="true" 	type="string" 																hint="The analytics profile ID." />
+		<cfargument name="start_date" 	required="true" 	type="string"	default="#DateFormat(Now()-7, "yyyy-mm-dd")#" 				hint="The first date of the date range for which you are requesting the data." />
+		<cfargument name="end_date" 	required="true" 	type="string" 	default="#DateFormat(Now(), "yyyy-mm-dd")#"					hint="The last date of the date range for which you are requesting the data." />
+		<cfargument name="metrics" 		required="true" 	type="string" 	default="mcf:totalConversions,mcf:totalConversionValue"		hint="A list of comma-separated metrics, such as mcf:totalConversions,mcf:totalConversionValue." />
+		<cfargument name="dimensions" 	required="false"	type="string"	default="mcf:source,mcf:keyword"							hint="A list of comma-separated dimensions for your Analytics data, such as mcf:source,mcf:keyword." />
+		<cfargument name="sort" 		required="false" 	type="string" 																hint="A list of comma-separated dimensions and metrics indicating the sorting order and sorting direction for the returned data." />
+		<cfargument name="filters" 		required="false" 	type="string" 																hint="Dimension or metric filters that restrict the data returned for your request." />
+		<cfargument name="start_index" 	required="false" 	type="string" 																hint="The first row of data to retrieve, starting at 1. Use this parameter as a pagination mechanism along with the max-results parameter." />
+		<cfargument name="max_results" 	required="false" 	type="string" 																hint="The maximum number of rows to include in the response." />
+		<cfargument name="access_token" required="true"		type="string"	default="#getAccess_token()#"								hint="The access token generated from the successful OAuth authentication process." />
+			<cfset arguments.reportType	= "mcf" />
+		<cfreturn getReporting().queryAnalytics(argumentCollection=arguments) />
+	</cffunction>	
+	
+	<!--- *********************************************** --->
+	<!--- END Multi-Channel Funnels Reporting API Methods --->
+	<!--- *********************************************** --->
 		
 	<!--- **************************** --->
 	<!--- START Management API Methods --->

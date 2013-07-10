@@ -92,7 +92,7 @@
 		<cfargument name="profileID" 	required="true" 	type="string" 													hint="The analytics profile ID." />
 		<cfargument name="start_date" 	required="true" 	type="string"	default="#DateFormat(Now()-7, "yyyy-mm-dd")#" 	hint="The first date of the date range for which you are requesting the data." />
 		<cfargument name="end_date" 	required="true" 	type="string" 	default="#DateFormat(Now(), "yyyy-mm-dd")#"		hint="The last date of the date range for which you are requesting the data." />
-		<cfargument name="metrics" 		required="true" 	type="string" 	default="ga:visits,ga:bounces"					hint="A list of comma-separated metrics, such as ga:visits,ga:bounces." />
+		<cfargument name="metrics" 		required="true" 	type="string" 													hint="A list of comma-separated metrics, such as ga:visits,ga:bounces for ga reports or mcf:totalConversions,mcf:totalConversionValue for multi-channel filter reports." />
 		<cfargument name="dimensions" 	required="false"	type="string"													hint="A list of comma-separated dimensions for your Analytics data, such as ga:browser,ga:city." />
 		<cfargument name="sort" 		required="false" 	type="string" 													hint="A list of comma-separated dimensions and metrics indicating the sorting order and sorting direction for the returned data." />
 		<cfargument name="filters" 		required="false" 	type="string" 													hint="Dimension or metric filters that restrict the data returned for your request." />
@@ -111,7 +111,7 @@
 				<cfset structDelete(stuTemp,"access_token") />
 				<!--- Build the params and URL --->
 				<cfset strParams = buildParamString(clearEmptyParams(stuTemp)) />
-				<cfset strURL = getreportingAPIEndpoint() & "?ids=ga:" & arguments.profileID & "&" & strParams />
+				<cfset strURL = getreportingAPIEndpoint() & arguments.reportType & "?ids=ga:" & arguments.profileID & "&" & strParams />
 		<cfreturn makeRequest(remoteURL = strURL, authToken = arguments.access_token) />
 	</cffunction>
 		

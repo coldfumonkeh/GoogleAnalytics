@@ -1,7 +1,7 @@
 <cfset application.objGA.refreshToken()>
 <!---<cfdump var="#application.objGA.listWebProperties(accountid="37540125")#">--->
 
-<cfdump var="#application.objGA.getProfileData(
+<cfdump var="#application.objGA.queryAnalytics(
 	profileID		=	"67782753"
 )#">
 
