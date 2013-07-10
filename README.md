@@ -122,7 +122,7 @@ The default dates (if not provided in the method call itself) are for the previo
 This method is highly configurable (it needs to be) to allow you to query for specific metrics and dimensions to get the relevant informatio you 
 require in your report.
 
-Documentation for available dimensions and metrics can be found here [https://developers.google.com/analytics/devguides/reporting/core/dimsmets](https://developers.google.com/analytics/devguides/reporting/core/dimsmets)
+Documentation for available dimensions and metrics can be found here: [https://developers.google.com/analytics/devguides/reporting/core/dimsmets](https://developers.google.com/analytics/devguides/reporting/core/dimsmets)
 
 
 ## Specific Methods ##
