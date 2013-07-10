@@ -1,13 +1,13 @@
 # Google Analytics #
 
-A ColdFusion wrapper to interact with the Google Analytics Core Reporting API and OAuth2 authentication protocols.
+A ColdFusion wrapper to interact with the Google Analytics Management and Core Reporting APIs, complete with OAuth2 authentication protocols.
 
 
 # Getting Started #
 
-To integrate the Google Analytics Core Reporting data into your ColdFusion application, you will first need to register your app in the [Google API Console](https://code.google.com/apis/console/b/0/)
+To integrate the Google Analytics Management / Reporting data into your ColdFusion application, you will first need to register your app in the [Google API Console](https://code.google.com/apis/console/b/0/)
 
-Once complete, make a note of your client id and client secret values, as well as the callback URL you specified. These values will be entered into the **init()** method of the component.
+Once complete, make a note of your client id and client secret values, as well as the callback URL you specified. These values will need to be entered into the **init()** method of the component.
 
 ## Instantiation ##
 
@@ -17,9 +17,9 @@ Firstly, set up the **init()** constructor method. This _could be_ in your Appli
 					client_id		=	'< your client id value >',
 					client_secret	=	'< your client secret value >',
 					redirect_uri	=	'http://127.0.0.1:8500/googleanalytics/index.cfm', // the redirect URI
-					scope			=	'https://www.googleapis.com/auth/analytics.readonly',
+					readonly		=	'true', // defaults to true. false will enable write access and set the scope accordingly.
 					state			=	'',
-					access_type		=	'online',
+					access_type		=	'online', // online or offline
 					approval_prompt	=	'force'
 				) />
 
@@ -100,13 +100,15 @@ When landing on that page, the **revokeAccess()** method is called before they a
 
 Now you can call methods to access your analytics data.
 
+# Core Reporting API #
+
 Firstly, get the list of available profiles within your analytics account using the **getProfiles()** method:
 
 	<cfset stuProfiles = application.objGA.getProfiles() />
 
 This returns a struct of arrays, each item in the array being a profile (site or app) set up within Google Analytics.
 
-The main method available to use for all requests is the generic **queryAnalytics()** method.
+The main method available to use for all requests to the Core Reporting API is the generic **queryAnalytics()** method.
 This method accepts all parameters from the remote API, and allows you to query on a specific profile:
 
 	<cfset stuData = application.objGA.queryAnalytics(
@@ -167,7 +169,7 @@ If you have the refresh and access token details, you can also set these directl
 					client_id		=	'< your client id value >',
 					client_secret	=	'< your client secret value >',
 					redirect_uri	=	'http://127.0.0.1:8500/googleanalytics/index.cfm', // the redirect URI
-					scope			=	'https://www.googleapis.com/auth/analytics.readonly',
+					readonly		=	true,
 					state			=	'',
 					access_type		=	'offline',
 					approval_prompt	=	'force'
@@ -183,5 +185,5 @@ To find out more about the Core Reporting API (v3), check out the [official docu
 
 # Acknowledgements & Thanks #
 
-This component is based upon the open source release from [Jen](https://github.com/jensbits/Google-Analytics-Data-Export-API-with-ColdFusion). Original blog post from Jen about her project available [here](http://www.jensbits.com/2012/04/05/google-analytics-reporting-api-using-oauth-2-with-coldfusion/)
+This starting point for this component was based upon the open source release from [Jen](https://github.com/jensbits/Google-Analytics-Data-Export-API-with-ColdFusion). Original blog post from Jen about her project available [here](http://www.jensbits.com/2012/04/05/google-analytics-reporting-api-using-oauth-2-with-coldfusion/)
 
