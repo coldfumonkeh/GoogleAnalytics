@@ -1,4 +1,7 @@
-<cfif structKeyExists(URL, 'code')>
+<cfdump var="#application.objGA.listAccounts()#">
+
+
+<!---<!---<cfif structKeyExists(URL, 'code')>
 	<!---
 		We have the code from the authentication, 
 		so let's obtain the access token.
@@ -20,15 +23,17 @@
 	</cfif>
 	
 </cfif>
-		
+		--->
 <!---
 	If the SESSION key exists, we seem to have access to the API.
 --->
-<cfif structKeyExists(session, "google_api_auth")>
+<!---<cfif structKeyExists(session, "google_api_auth")>
 	
 	<a href="revoke.cfm">Revoke API Access</a>
 	
-	<a href="index.cfm?reinit=true">Reload</a>	
+	<a href="index.cfm?reinit=true">Reload</a>--->
+	
+	<cfdump var="#application.objGA#">
 	
 		<!---<cfset stuData = application.objGA.queryAnalytics(
 						profileID		=	"67789709",
@@ -94,7 +99,7 @@
 	
 	<cfdump var="#stuData#">--->
 	
-<cfelse>
+<!---<cfelse>
 
 <!---
 	We are not logged in or authenticated.
@@ -102,4 +107,6 @@
 --->
 <cfoutput><a href="#application.objGA.getLoginURL()#">Login and Authenticate</a></cfoutput>
 
-</cfif>
+</cfif>--->
+
+<cfdump var="#application.objGA#">--->

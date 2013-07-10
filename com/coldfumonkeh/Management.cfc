@@ -1,164 +1,13 @@
-<!---
-Name: GoogleAnalytics.cfc
-Author: Matt Gifford
-Date: 9th January 2013
-Purpose: 
-	This component interacts with the Google Analytics API to retrieve data for analysis and display.
-	The requests require authentication through the OAuth2 protocol, also handled by this component.
-	
-Reference: https://developers.google.com/analytics/devguides/config/mgmt/v3/
-
-Changelog:
-
-10/07/2013 - Revised structure and split reporting and management into separate objects.
-09/07/2013 - Added Management API methods and amended Core Reporting methods
-09/01/2013 - Initial release
-
---->
 <cfcomponent output="false" accessors="true" extends="Utils">
 	
-	<cfproperty name="client_id" 		type="string" />
-	<cfproperty name="client_secret" 	type="string" />
-	<cfproperty name="redirect_uri" 	type="string" />
-	<cfproperty name="readonly" 		type="boolean" />
-	<cfproperty name="scope" 			type="string" />
-	<cfproperty name="state" 			type="string" />
-	<cfproperty name="access_type"		type="string" />
-	<cfproperty name="approval_prompt"	type="string" />
+	<cfproperty name="managementAPIEndpoint"	type="string" />
 	
-	<!--- Sub components --->
-	<cfproperty name="management"		type="Management" />
-	<cfproperty name="reporting"		type="Reporting" />
-	
-	<!--- Google API Details --->
-	<cfproperty name="baseAuthEndpoint"			type="string" />	
-	
-	<!--- Auth details from the authentication --->
-	<cfproperty name="access_token"		type="string" default="" />
-	<cfproperty name="refresh_token"	type="string" default="" />
-	
-	<cffunction name="init" access="public" output="false" hint="The constructor method.">
-		<cfargument name="client_id" 				type="string" required="true"						hint="Indicates the client that is making the request. The value passed in this parameter must exactly match the value shown in the APIs Console." />
-		<cfargument name="client_secret" 			type="string" required="true"						hint="The secret key associated with the client." />
-		<cfargument name="redirect_uri" 			type="string" required="true"						hint="Determines where the response is sent. The value of this parameter must exactly match one of the values registered in the APIs Console (including the http or https schemes, case, and trailing '/')." />
-		<cfargument name="readonly"					type="boolean"required="false" default="true"		hint="Is access authorized for read only or write? This defines the SCOPE sent to the OAuth request." />
-		<cfargument name="state" 					type="string" required="true"						hint="Indicates any state which may be useful to your application upon receipt of the response. The Google Authorization Server roundtrips this parameter, so your application receives the same value it sent. Possible uses include redirecting the user to the correct resource in your site, nonces, and cross-site-request-forgery mitigations." />
-		<cfargument name="access_type" 				type="string" required="false" default="online" 	hint="ONLINE or OFFLINE. Indicates if your application needs to access a Google API when the user is not present at the browser. This parameter defaults to online. If your application needs to refresh access tokens when the user is not present at the browser, then use offline. This will result in your application obtaining a refresh token the first time your application exchanges an authorization code for a user." />
-		<cfargument name="approval_prompt"			type="string" required="false" default="auto" 		hint="AUTO or FORCE. Indicates if the user should be re-prompted for consent. The default is auto, so a given user should only see the consent page for a given set of scopes the first time through the sequence. If the value is force, then the user sees a consent page even if they have previously given consent to your application for a given set of scopes." />
-		<cfargument name="baseAuthEndpoint"			type="string" required="false" default="https://accounts.google.com/o/oauth2/" 					hint="The base URL to which we will make the OAuth requests." />
-		<cfargument name="reportingAPIEndpoint"		type="string" required="false" default="https://www.googleapis.com/analytics/v3/data/ga" 		hint="The base reporting API URL to which we will make the API requests." />
-		<cfargument name="managementAPIEndpoint"	type="string" required="false" default="https://www.googleapis.com/analytics/v3/management/" 	hint="The base management API URL to which we will make the API requests." />
-			<cfset setClient_id(arguments.client_id) />
-			<cfset setClient_secret(arguments.client_secret) />
-			<cfset setRedirect_uri(arguments.redirect_uri) />
-			<cfset manageScope(arguments.readonly) />
-			<cfset setState(arguments.state) />
-			<cfset setAccess_type(arguments.access_type) />
-			<cfset setBaseAuthEndpoint(arguments.baseAuthEndpoint) />
-			<!--- Instantiate sub components --->
-			<cfset setManagement(createObject("component","Management").init(arguments.managementAPIEndpoint)) />
-			<cfset setReporting(createObject("component","Reporting").init(arguments.reportingAPIEndpoint)) />
+	<cffunction name="init" output="false" access="package" hint="The constructor method.">
+		<cfargument name="managementAPIEndpoint" type="string" required="false" default="https://www.googleapis.com/analytics/v3/management/" 	hint="The base management API URL to which we will make the API requests." />
+			<cfset setManagementAPIEndpoint(arguments.managementAPIEndpoint) />
 		<cfreturn this />
 	</cffunction>
 	
-	<cffunction name="manageScope" access="public" output="false" hint="I set the correct scope URL based upon the readonly value.">
-		<cfargument name="readonly" required="true" type="boolean" hint="The readonly value sent through the init method." />
-			<cfset var strScopeURL = "https://www.googleapis.com/auth/analytics" />
-			<cfif readonly>
-				<cfset strScopeURL = strScopeURL & ".readonly" />				
-			</cfif>
-		<cfset setScope(strScopeURL) />
-	</cffunction>
-	
-	<!--- START OAuth and access methods --->
-		
-	<cffunction name="getLoginURL" access="public" output="false" returntype="String" hint="I generate the link to login and retrieve the authentication code.">
-		<cfset var strLoginURL = "" />
-			<cfset strLoginURL = getBaseAuthEndpoint() 
-				& "auth?scope=" & getScope() 
-                & "&redirect_uri=" & getRedirect_uri()
-                & "&response_type=code&client_id=" & getClient_id()
-                & "&access_type=" & getAccess_type() />
-		<cfreturn strLoginURL />
-	</cffunction>
-	
-	<cffunction name="getAccessToken" access="public" output="false" returntype="Struct" hint="This method exchanges the authorization code for an access token and (where present) a refresh token.">
-		<cfargument name="code" type="string" required="yes" hint="The returned authorization code." />
-			<cfset var strURL = getBaseAuthEndpoint() & "token" />
-				<cfhttp url="#strURL#" method="post">
-		       		<cfhttpparam name="code" 			type="formField" value="#arguments.code#" />
-		       		<cfhttpparam name="client_id" 		type="formField" value="#getClient_id()#" />
-		       		<cfhttpparam name="client_secret" 	type="formField" value="#getClient_secret()#" />
-		       		<cfhttpparam name="redirect_uri" 	type="formField" value="#getRedirect_uri()#" />
-		       		<cfhttpparam name="grant_type" 		type="formField" value="authorization_code" />
-				</cfhttp>
-		<cfreturn manageResponse(cfhttp.FileContent) />
-	</cffunction>
-	
-	<cffunction name="refreshToken" access="public" output="false" hint="I take the refresh_token from the authorization procedure and get you a new access token.">
-		<cfset var strURL = getBaseAuthEndpoint() & "token" />
-			<cfhttp url="#strURL#" method="post">
-	       		<cfhttpparam name="refresh_token" 		type="formField" value="#getRefresh_token()#" />
-	       		<cfhttpparam name="client_id" 			type="formField" value="#getClient_id()#" />
-	       		<cfhttpparam name="client_secret" 		type="formField" value="#getClient_secret()#" />
-	       		<cfhttpparam name="grant_type" 			type="formField" value="refresh_token" />
-			</cfhttp>
-		<cfreturn manageResponse(cfhttp.FileContent) />
-	</cffunction>
-	
-	<cffunction name="revokeAccess" access="public" output="false" hint="I revoke access to this application. You must pass in either the refresh token or access token.">
-		<cfargument name="token" type="string" required="true" default="#getAccess_token()#" hint="The access token or refresh token generated from the successful OAuth authentication process." />
-    		<cfset var strURL = "https://accounts.google.com/o/oauth2/revoke?token=" & arguments.token />		
-			<cfhttp url="#strURL#" />
-		<cfreturn cfhttp />
-	</cffunction>
-	
-	<!--- END OAuth and access methods --->
-		
-	
-	<!--- START Core Reporting API Methods --->
-		
-	<cffunction name="getProfileData" access="public" output="false" returntype="Struct" hint="I return data for the selected profile.">
-		<cfargument name="profileID" 	required="true" type="string" 								hint="The analytics profile ID." />
-		<cfargument name="start_date" 	required="true" type="string" 								hint="The first date of the date range for which you are requesting the data." />
-		<cfargument name="end_date" 	required="true" type="string" 								hint="The last date of the date range for which you are requesting the data." />
-		<cfargument name="access_token" required="true"	type="string" default="#getAccess_token()#" hint="The access token generated from the successful OAuth authentication process." />
-		<cfreturn getReporting().getProfileData(argumentCollection=arguments) />
-	</cffunction>
-	
-	<cffunction name="getPageVistsForURI" access="public" output="false" returntype="Struct" hint="I return page visit statistics within the given date range for a particular URI.">
-		<cfargument name="profileID" 	required="true" 	type="string" 													hint="The analytics profile ID." />
-		<cfargument name="start_date" 	required="true" 	type="string" 	default="#DateFormat(Now()-7, "yyyy-mm-dd")#"	hint="The first date of the date range for which you are requesting the data." />
-		<cfargument name="end_date" 	required="true" 	type="string"	default="#DateFormat(Now(), "yyyy-mm-dd")#"		hint="The last date of the date range for which you are requesting the data." />
-		<cfargument name="uri"			required="true" 	type="string"													hint="The URI to filter for." />
-		<cfargument name="start_index" 	required="false" 	type="string" 													hint="The first row of data to retrieve, starting at 1. Use this parameter as a pagination mechanism along with the max-results parameter." />
-		<cfargument name="max_results" 	required="false" 	type="string" 													hint="The maximum number of rows to include in the response." />
-		<cfargument name="access_token" required="true"		type="string"	default="#getAccess_token()#"					hint="The access token generated from the successful OAuth authentication process." />
-		<cfreturn getReporting().getPageVistsForURI(argumentCollection=arguments) />
-	</cffunction>
-		
-	<cffunction name="queryAnalytics" access="public" output="false" returntype="Struct" hint="I make a generic request to the Google Analytics API, based upon the parameters you provide me.">
-		<cfargument name="profileID" 	required="true" 	type="string" 													hint="The analytics profile ID." />
-		<cfargument name="start_date" 	required="true" 	type="string"	default="#DateFormat(Now()-7, "yyyy-mm-dd")#" 	hint="The first date of the date range for which you are requesting the data." />
-		<cfargument name="end_date" 	required="true" 	type="string" 	default="#DateFormat(Now(), "yyyy-mm-dd")#"		hint="The last date of the date range for which you are requesting the data." />
-		<cfargument name="metrics" 		required="true" 	type="string" 	default="ga:visits,ga:bounces"					hint="A list of comma-separated metrics, such as ga:visits,ga:bounces." />
-		<cfargument name="dimensions" 	required="false"	type="string"													hint="A list of comma-separated dimensions for your Analytics data, such as ga:browser,ga:city." />
-		<cfargument name="sort" 		required="false" 	type="string" 													hint="A list of comma-separated dimensions and metrics indicating the sorting order and sorting direction for the returned data." />
-		<cfargument name="filters" 		required="false" 	type="string" 													hint="Dimension or metric filters that restrict the data returned for your request." />
-		<cfargument name="segment" 		required="false" 	type="string" 													hint="Segments the data returned for your request." />
-		<cfargument name="start_index" 	required="false" 	type="string" 													hint="The first row of data to retrieve, starting at 1. Use this parameter as a pagination mechanism along with the max-results parameter." />
-		<cfargument name="max_results" 	required="false" 	type="string" 													hint="The maximum number of rows to include in the response." />
-		<cfargument name="fields" 		required="false" 	type="string" 													hint="Selector specifying a subset of fields to include in the response." />
-		<cfargument name="prettyPrint" 	required="false" 	type="string" 													hint="Returns response with indentations and line breaks. Default false." />
-		<cfargument name="access_token" required="true"		type="string"	default="#getAccess_token()#"					hint="The access token generated from the successful OAuth authentication process." />
-		<cfreturn getReporting().queryAnalytics(argumentCollection=arguments) />
-	</cffunction>
-		
-	<!--- END Core Reporting API Methods --->
-		
-		
-	<!--- START Management API Methods --->
-		
 	<!--- START Management.accounts --->
 	<!--- LIST --->
 	<!--- GET https://www.googleapis.com/analytics/v3/management/accounts --->
@@ -166,7 +15,15 @@ Changelog:
 		<cfargument name="max_results" 	required="false" type="numeric" 								hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 	required="false" type="numeric" 								hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" required="true"  type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-		<cfreturn getManagement().listAccounts(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "accounts/" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 	
 	<!--- END Management.accounts --->
@@ -181,7 +38,16 @@ Changelog:
 		<cfargument name="max_results" 	required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 	required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-    	<cfreturn getManagement().listWebProperties(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountID & "/webproperties" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"accountID") />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 		
 	<!--- END Management.webproperties --->
@@ -197,7 +63,17 @@ Changelog:
 		<cfargument name="max_results" 		required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-    	<cfreturn getManagement().listProfiles(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/profiles" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"accountId") />
+				<cfset structDelete(stuParams,"webPropertyId") />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 		
 	<!--- END Management.profiles --->
@@ -214,7 +90,18 @@ Changelog:
 		<cfargument name="max_results" 		required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-    	<cfreturn getManagement().listGoals(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/profiles/" & arguments.profileId & "/goals" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"accountId") />
+				<cfset structDelete(stuParams,"webPropertyId") />
+				<cfset structDelete(stuParams,"profileId") />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 	
 		
@@ -231,7 +118,15 @@ Changelog:
 		<cfargument name="max_results" 		required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-    	<cfreturn getManagement().listSegments(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "segments" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 	
 		
@@ -248,7 +143,17 @@ Changelog:
 		<cfargument name="max_results" 		required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-    	<cfreturn getManagement().listCustomDatasources(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/customDataSources" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"accountId") />
+				<cfset structDelete(stuParams,"webPropertyId") />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 	
 		
@@ -268,7 +173,18 @@ Changelog:
 		<cfargument name="max_results" 			required="false" 	type="numeric" 									hint="The maximum number of accounts to include in this response." />
 		<cfargument name="start_index" 			required="false" 	type="numeric" 									hint="An index of the first account to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 		required="true"  	type="string" 	default="#getAccess_token()#" 	hint="The access token generated from the successful OAuth authentication process." />
-    	<cfreturn getManagement().listDailyUploads(argumentCollection=arguments) />
+    		<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/customDataSources" & arguments.customDataSourceId & "/dailyUploads" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"accountId") />
+				<cfset structDelete(stuParams,"customDataSourceId") />
+				<cfset structDelete(stuParams,"webPropertyId") />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 	
 		
@@ -292,7 +208,18 @@ Changelog:
 		<cfargument name="max_results" 		required="false" 	type="numeric" 									hint="The maximum number of experiments to include in this response." />
 		<cfargument name="start_index" 		required="false" 	type="numeric" 									hint="An index of the first experiment to retrieve. Use this parameter as a pagination mechanism along with the max-results parameter." />
 		<cfargument name="access_token" 	required="true"		type="string"	default="#getAccess_token()#"	hint="The access token generated from the successful OAuth authentication process." />
-		<cfreturn getManagement().listExperiments(argumentCollection=arguments) />
+			<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/profiles/" & arguments.profileID & "/experiments" />
+			<cfset var stuParams = structCopy(arguments) />
+			<cfset var strParams = "" />
+				<cfset structDelete(stuParams,"accountId") />
+				<cfset structDelete(stuParams,"webPropertyId") />
+				<cfset structDelete(stuParams,"profileID") />
+				<cfset structDelete(stuParams,"access_token") />
+				<cfset strParams = buildParamString(stuParams) />
+				<cfif len(strParams)>
+					<cfset strURL = strURL & "?" & strParams />
+				</cfif>
+		<cfreturn makeRequest(strURL, arguments.access_token) />
 	</cffunction>
 	
 	<!--- GET --->
@@ -303,7 +230,8 @@ Changelog:
 		<cfargument name="profileID" 		required="true" 	type="string" 													hint="The analytics profile ID." />
 		<cfargument name="experimentID" 	required="true" 	type="string" 													hint="The analytics experiment ID." />
 		<cfargument name="access_token" 	required="true"		type="string"	default="#getAccess_token()#"					hint="The access token generated from the successful OAuth authentication process." />
-		<cfreturn getManagement().getExperiment(argumentCollection=arguments) />	
+			<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/profiles/" & arguments.profileID & "/experiments/" & arguments.experimentID />
+		<cfreturn makeRequest(strURL, arguments.access_token) />	
 	</cffunction>
 	
 	<!--- INSERT --->
@@ -325,14 +253,28 @@ Changelog:
 		<cfargument name="trafficCoverage"					required="false"	type="numeric" 									hint="A floating-point number between 0 and 1. Specifies the fraction of the traffic that participates in the experiment. Can be changed for a running experiment. This field may not be changed for an experiments whose status is ENDED." /> 
 		<cfargument name="variations"						required="false"	type="array"									hint="Array of variations. The first variation in the array is the original. The number of variations may not change once an experiment is in the RUNNING state. At least two variations are required before status can be set to RUNNING." />		
 		<cfargument name="winnerConfidenceLevel" 			required="false"	type="numeric"									hint="A floating-point number between 0 and 1. Specifies the necessary confidence level to choose a winner. This field may not be changed for an experiments whose status is ENDED." />
-		<cfreturn getManagement().insertExperiment(argumentCollection=arguments) /> 
+			
+			<!---<cfif checkExperimentStatusIsValid(status=arguments.status, method="insert")>
+				
+				<!--- Now check the variation array. --->
+				<cfset stuVariationCheck = checkVariationsAreValid(arguments.variations) />
+				<cfif stuVariationCheck.valid>
+					
+				<cfelse>
+					<cfthrow message="#stuVariationCheck.message#" />
+				</cfif>
+				
+			<cfelse>
+				not valid
+			</cfif>--->
+			<cfset var strURL = getManagementAPIEndpoint() & "accounts/" & arguments.accountId & "/webproperties/" & arguments.webPropertyId & "/profiles/" & arguments.profileID & "/experiments" />
+	
+		<cfreturn makeRequest(strURL,arguments.access_token, "POST") /> 
 	</cffunction>
 
 	<!--- END Management.experiments --->
 		
 
 	<!--- END Management API Methods --->
-		
-	
 	
 </cfcomponent>
