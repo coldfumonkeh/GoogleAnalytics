@@ -17,7 +17,7 @@ Firstly, set up the **init()** constructor method. This _could be_ in your Appli
 					client_id		=	'< your client id value >',
 					client_secret	=	'< your client secret value >',
 					redirect_uri	=	'http://127.0.0.1:8500/googleanalytics/index.cfm', // the redirect URI
-					readonly		=	'true', // defaults to true. false will enable write access and set the scope accordingly.
+					readonly		=	true, // defaults to true. false will enable write access and set the scope accordingly.
 					state			=	'',
 					access_type		=	'online', // online or offline
 					approval_prompt	=	'force'
@@ -118,6 +118,12 @@ This method accepts all parameters from the remote API, and allows you to query 
 						) />
 
 The default dates (if not provided in the method call itself) are for the previous week (Now() -7)
+
+This method is highly configurable (it needs to be) to allow you to query for specific metrics and dimensions to get the relevant informatio you 
+require in your report.
+
+Documentation for available dimensions and metrics can be found here [https://developers.google.com/analytics/devguides/reporting/core/dimsmets](https://developers.google.com/analytics/devguides/reporting/core/dimsmets)
+
 
 ## Specific Methods ##
 
