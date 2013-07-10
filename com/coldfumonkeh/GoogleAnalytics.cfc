@@ -28,7 +28,6 @@ Changelog:
 	
 	<!--- Sub components --->
 	<cfproperty name="management"		type="Management" />
-	<cfproperty name="mcfreporting"		type="MCFReporting" />
 	<cfproperty name="reporting"		type="Reporting" />
 	
 	<!--- Google API Details --->
@@ -47,9 +46,8 @@ Changelog:
 		<cfargument name="access_type" 				type="string" 	required="false" default="online" 	hint="ONLINE or OFFLINE. Indicates if your application needs to access a Google API when the user is not present at the browser. This parameter defaults to online. If your application needs to refresh access tokens when the user is not present at the browser, then use offline. This will result in your application obtaining a refresh token the first time your application exchanges an authorization code for a user." />
 		<cfargument name="approval_prompt"			type="string" 	required="false" default="auto" 	hint="AUTO or FORCE. Indicates if the user should be re-prompted for consent. The default is auto, so a given user should only see the consent page for a given set of scopes the first time through the sequence. If the value is force, then the user sees a consent page even if they have previously given consent to your application for a given set of scopes." />
 		<cfargument name="baseAuthEndpoint"			type="string" 	required="false" default="https://accounts.google.com/o/oauth2/" 				hint="The base URL to which we will make the OAuth requests." />
-		<cfargument name="reportingAPIEndpoint"		type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/data/ga" 		hint="The base reporting API URL to which we will make the API requests." />
+		<cfargument name="reportingAPIEndpoint"		type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/data/" 		hint="The base reporting API URL to which we will make the API requests." />
 		<cfargument name="managementAPIEndpoint"	type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/management/" 	hint="The base management API URL to which we will make the API requests." />
-		<cfargument name="mcfreportingAPIEndpoint"	type="string" 	required="false" default="https://www.googleapis.com/analytics/v3/data/mcf"		hint="The base multi-channel funnels reporting API URL to which we will make the API requests." />
 			<cfset setClient_id(arguments.client_id) />
 			<cfset setClient_secret(arguments.client_secret) />
 			<cfset setRedirect_uri(arguments.redirect_uri) />
@@ -58,7 +56,6 @@ Changelog:
 			<cfset setAccess_type(arguments.access_type) />
 			<cfset setBaseAuthEndpoint(arguments.baseAuthEndpoint) />
 			<cfset setManagement(createObject("component","Management").init(arguments.managementAPIEndpoint)) />
-			<cfset setMCFReporting(createObject("component","MCFReporting").init(arguments.mcfreportingAPIEndpoint)) />
 			<cfset setReporting(createObject("component","Reporting").init(arguments.reportingAPIEndpoint)) />
 		<cfreturn this />
 	</cffunction>

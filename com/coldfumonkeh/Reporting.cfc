@@ -22,7 +22,8 @@
 												metrics 		= 	"ga:newVisits,ga:pageviews,ga:visits,ga:visitors,ga:timeOnSite",
 												start_date		=	arguments.start_date,
 												end_date		=	arguments.end_date,
-												access_token	=	arguments.access_token
+												access_token	=	arguments.access_token,
+												reportType		=	"ga"
 											),
 					"visitor_loyalty" 	= queryAnalytics(
 												profileID		=	arguments.profileID,
@@ -30,7 +31,8 @@
 												metrics 		= 	"ga:visits,ga:organicSearches",
 												start_date		=	arguments.start_date,
 												end_date		=	arguments.end_date,
-												access_token	=	arguments.access_token
+												access_token	=	arguments.access_token,
+												reportType		=	"ga"
 											),
 					"vists_chart"		= queryAnalytics(
 												profileID		=	arguments.profileID,
@@ -39,7 +41,8 @@
 												sort			=	"ga:year,ga:month",
 												start_date		=	arguments.start_date,
 												end_date		=	arguments.end_date,
-												access_token	=	arguments.access_token
+												access_token	=	arguments.access_token,
+												reportType		=	"ga"
 											),
 					"country_chart"		= queryAnalytics(
 												profileID		=	arguments.profileID,
@@ -48,7 +51,8 @@
 												sort			=	"-ga:visits",
 												start_date		=	arguments.start_date,
 												end_date		=	arguments.end_date,
-												access_token	=	arguments.access_token
+												access_token	=	arguments.access_token,
+												reportType		=	"ga"
 											),
 					"top_pages"			= queryAnalytics(
 												profileID		=	arguments.profileID,
@@ -58,7 +62,8 @@
 												sort			=	"-ga:pageviews",
 												start_date		=	arguments.start_date,
 												end_date		=	arguments.end_date,
-												access_token	=	arguments.access_token
+												access_token	=	arguments.access_token,
+												reportType		=	"ga"
 											)} />
 		<cfreturn stuResponse />
 	</cffunction>
@@ -79,6 +84,7 @@
 				<cfset structInsert(stuTemp,"metrics","ga:pageviews") />
 				<cfset structInsert(stuTemp,"sort","ga:date,ga:pagepath") />
 				<cfset structInsert(stuTemp,"filters","ga:pagepath=~/#arguments.uri#") />
+				<cfset structInsert(stuTemp,"reportType","ga") />
 		<cfreturn queryAnalytics(argumentCollection=stuTemp) />
 	</cffunction>
 		
@@ -95,6 +101,7 @@
 		<cfargument name="max_results" 	required="false" 	type="string" 													hint="The maximum number of rows to include in the response." />
 		<cfargument name="fields" 		required="false" 	type="string" 													hint="Selector specifying a subset of fields to include in the response." />
 		<cfargument name="prettyPrint" 	required="false" 	type="string" 													hint="Returns response with indentations and line breaks. Default false." />
+		<cfargument name="reportType"	required="true"		type="string"													hint="Determines the URL for the report API endpoint. Values are either ga or mcf." />
 		<cfargument name="access_token" required="true"		type="string"	default="#getAccess_token()#"					hint="The access token generated from the successful OAuth authentication process." />
 			<cfset var strURL 		= "" />
 			<cfset var strParams 	= "" />
