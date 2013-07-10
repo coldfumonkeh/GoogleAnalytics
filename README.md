@@ -192,4 +192,3 @@ To find out more about the Core Reporting API (v3), check out the [official docu
 # Acknowledgements & Thanks #
 
 This starting point for this component was based upon the open source release from [Jen](https://github.com/jensbits/Google-Analytics-Data-Export-API-with-ColdFusion). Original blog post from Jen about her project available [here](http://www.jensbits.com/2012/04/05/google-analytics-reporting-api-using-oauth-2-with-coldfusion/)
-
