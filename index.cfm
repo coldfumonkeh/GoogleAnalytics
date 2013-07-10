@@ -31,13 +31,12 @@
 	
 	<cfdump var="#application.objGA#">
 	
-		<!---<cfset stuData = application.objGA.queryAnalytics(
-						profileID		=	"67789709",
-						prettyPrint		=	"true"
-					) />
-	
-		<cfdump var="#stuData#">--->
-	
+	<!---
+		<cfset stuData = application.objGA.queryAnalytics(
+					profileID		=	"< your profile ID >",
+					prettyPrint		=	"true"
+				) />
+	--->
 	<!---
 		<cfset stuData = application.objGA.getPageVistsForURI(
 					profileID		=	"< your profile ID >", 
@@ -55,35 +54,8 @@
 	--->
 	
 	<!---<cfset stuData = application.objGA.getProfiles() />--->
-		
-	<!---<cfdump var="#application.objGA.listDailyUploads(
-										accountId		=	"37540125",
-										webPropertyId	=	"UA-37540125-2",
-										max_results 	= 	10)#">--->
-		
-	
-	<!---<cfset stuData = application.objGA.insertExperiment(
-							accountID		=	"37540125",
-							webPropertyID	=	"UA-37540125-2",
-							profileID		=	"67782753",
-							<!---experimentID	=	"3MchIzT7RomxjaKn-wuxcA"--->
-							name			=	"monkehTest",
-							status			=	"DRAFT",
-							variations		=	[
-													{
-														"url" 	= 	"http://foo.com",
-														"name"	=	"original"
-													},
-													{
-														"url"	=	"http://bar.com",
-														"name"	=	"matt test"
-													}
-												]
-						) />
-			
-	
-	
-	<cfdump var="#stuData#">--->
+
+	<!--- <cfdump var="#stuData#"> --->
 	
 <cfelse>
 
