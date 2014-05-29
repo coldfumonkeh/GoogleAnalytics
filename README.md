@@ -102,11 +102,19 @@ Now you can call methods to access your analytics data.
 
 # Core Reporting API #
 
-Firstly, get the list of available profiles within your analytics account using the **getProfiles()** method:
+Firstly, get the list of available accounts within your analytics account using the **listAccounts()** method:
 
-	<cfset stuProfiles = application.objGA.getProfiles() />
+	<cfset stuAccounts = application.objGA.listAccounts() />
 
-This returns a struct of arrays, each item in the array being a profile (site or app) set up within Google Analytics.
+This returns a struct of arrays, each item in the array being an account set up within Google Analytics. You will need the account **id** to get a list of web properties under that account using the **listWebProperties()** method:
+
+	<cfset stuWebProperties = application.objGA.listWebProperties(accountId = [id]) />
+
+This returns a struct of arrays, each item in the array being a web property set up within the specified Google Analytics account. You will need the account **id** and the web property **id** to get a list of profiles using the **listProfiles()** method:
+
+	<cfset stuProfiles = application.objGA.listProfiles(accountId = [id], webPropertyId = [id]) />
+
+This returns a struct of arrays, each item in the array being a profile set up within the specified Google Analytics account and web property. You will need the profile **id** to make requests for analytics data through the Core Reporting API.
 
 The main method available to use for all requests to the Core Reporting API is the generic **queryAnalytics()** method.
 This method accepts all parameters from the remote API, and allows you to query on a specific profile:
