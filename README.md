@@ -1,4 +1,8 @@
-# Google Analytics #
+[![Build Status](https://travis-ci.org/coldfumonkeh/GoogleAnalytics.svg)](https://travis-ci.org/coldfumonkeh/GoogleAnalytics)
+
+# Google Analytics
+
+---
 
 A ColdFusion wrapper to interact with the Google Analytics Management and Core Reporting APIs, complete with OAuth2 authentication protocols.
 
@@ -50,7 +54,7 @@ Exchange this temporary code for an access token, which you can do using the **g
 
 	<cfif structKeyExists(URL, 'code')>
 		<!---
-			We have the code from the authentication, 
+			We have the code from the authentication,
 			so let's obtain the access token.
 		--->
 		<cfset authResponse = application.objGA.getAccessToken(code = URL.code) />
@@ -68,7 +72,7 @@ Exchange this temporary code for an access token, which you can do using the **g
 			--->
 			<p>Failed authentication.</p>
 		</cfif>
-		
+
 	</cfif>
 
 Once the user is logged in using the access token details, you have a limit for the life span of that token, which can be seen in the returned **expires_in_raw** and **expires_in** values from the **authResponse** value, returned from the method.
@@ -84,7 +88,7 @@ In this example, we will provide the logged in user a link to a new page:
 		If the SESSION key exists, we seem to have access to the API.
 	--->
 	<cfif structKeyExists(session, "google_api_auth")>
-		
+
 		<a href="revoke.cfm">Revoke API Access</a>
 
 	</cfif>
@@ -121,13 +125,13 @@ This method accepts all parameters from the remote API, and allows you to query 
 
 	<cfset stuData = application.objGA.queryAnalytics(
 							profileID		=	"< your profile ID >",
-							start_date		=	"2009-05-20", 
+							start_date		=	"2009-05-20",
 							end_date		=	"2012-12-12",
 						) />
 
 The default dates (if not provided in the method call itself) are for the previous week (Now() -7)
 
-This method is highly configurable (it needs to be) to allow you to query for specific metrics and dimensions to get the relevant informatio you 
+This method is highly configurable (it needs to be) to allow you to query for specific metrics and dimensions to get the relevant informatio you
 require in your report.
 
 Documentation for available dimensions and metrics can be found here: [https://developers.google.com/analytics/devguides/reporting/core/dimsmets](https://developers.google.com/analytics/devguides/reporting/core/dimsmets)
@@ -148,8 +152,8 @@ The component contains a few methods that obtain specific sets of information ba
 To get this information, simply run the method as in the example below:
 
 	<cfset stuProfileData = application.objGA.getProfileData(
-					profileID		=	"< your profile ID >", 
-					start_date		=	"2009-05-20", 
+					profileID		=	"< your profile ID >",
+					start_date		=	"2009-05-20",
 					end_date		=	"2013-01-09"
 				) />
 
@@ -157,9 +161,9 @@ To get this information, simply run the method as in the example below:
 **getPageVistsForURI()** lets you obtain page visit information for a specific page URI within the provided date range. Simply pass in the URI value:
 
 	<cfset application.objGA.getPageVistsForURI(
-					profileID		=	"< your profile ID >", 
-					start_date		=	"2009-05-20", 
-					end_date		=	"2012-12-12", 
+					profileID		=	"< your profile ID >",
+					start_date		=	"2009-05-20",
+					end_date		=	"2012-12-12",
 					uri				=	"your-page-or-blog-uri"
 				) />
 
