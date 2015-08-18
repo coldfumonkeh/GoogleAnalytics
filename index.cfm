@@ -42,7 +42,7 @@
 			present the accounts to the user to select from
 		--->
 		<h3>Select Account:</h3>
-		<cfloop from="1" to="#ArrayLen(stuData.items)#" index="iX">
+		<cfloop from="1" to="#ArrayLen(stuData.items)#" index="i">
 			<cfoutput><p><a href="#CGI.SCRIPT_NAME#?properties=&amp;accountId=#stuData.items[i].id#">#stuData.items[i].name#</a></p></cfoutput>
 		</cfloop>
 
@@ -59,7 +59,7 @@
 			present the properties to the user to select from
 		--->
 		<h3>Select Web Property:</h3>
-		<cfloop from="1" to="#ArrayLen(stuData.items)#" index="iX">
+		<cfloop from="1" to="#ArrayLen(stuData.items)#" index="i">
 			<cfoutput><p><a href="#CGI.SCRIPT_NAME#?profiles=&amp;accountId=#URL.accountId#&amp;propertyId=#stuData.items[i].id#">#stuData.items[i].name#</a></p></cfoutput>
 		</cfloop>
 
@@ -76,7 +76,7 @@
 			present the profiles to the user to select from
 		--->
 		<h3>Select Profile:</h3>
-		<cfloop from="1" to="#ArrayLen(stuData.items)#" index="iX">
+		<cfloop from="1" to="#ArrayLen(stuData.items)#" index="i">
 			<cfoutput><p><a href="#CGI.SCRIPT_NAME#?analytics=&amp;profileId=#stuData.items[i].id#">#stuData.items[i].name#</a></p></cfoutput>
 		</cfloop>
 
