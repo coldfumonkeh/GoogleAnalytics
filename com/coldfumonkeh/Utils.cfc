@@ -31,28 +31,36 @@
         <cfargument name="authToken" 	type="string" required="true" 					hint="The access_token from the OAuth authentication process, which will be appended to the query string." />
 		<cfargument name="method" 		type="string" required="false" default="GET" 	hint="The method used for the request. Default is GET." />
 			<cfset var authSubToken 	= 'Bearer ' & arguments.authToken />
+			<cfif listFirst(server.coldfusion.productversion) EQ "9">
 				<cfhttp url="#arguments.remoteURL#" method="#arguments.method#">
-		            <cfhttpparam name="Authorization" 	type="header" value="#authSubToken#" />
-		        </cfhttp>
-         <cfreturn deserializeJSON(cfhttp.filecontent) />
+					<cfhttpparam name="Authorization" 	type="header" value="#authSubToken#" />
+				</cfhttp>
+				<cfreturn deserializeJSON(cfhttp.filecontent).toString('UTF-8') />
+			<cfelse>
+				<cfhttp url="#arguments.remoteURL#" method="#arguments.method#" charset="UTF-8">
+					<cfhttpparam name="Authorization" 	type="header" value="#authSubToken#" />
+				</cfhttp>
+				<cfreturn deserializeJSON(cfhttp.filecontent) />
+			</cfif>
     </cffunction>
     
     <cffunction name="clearEmptyParams" access="private" output="false" returntype="Struct" hint="I accept the structure of arguments and remove any empty / nulls values before they are sent to the OAuth processing.">
 		<cfargument name="paramStructure" required="true" type="Struct" hint="I am a structure containing the arguments / parameters you wish to filter." />
 			<cfset var stuRevised = {} />
 				<cfloop collection="#arguments.paramStructure#" item="key">
-					<cfif len(arguments.paramStructure[key])>
+					<cfif structKeyExists(arguments.paramStructure, key)>
 						<cfset structInsert(stuRevised, lcase(key), arguments.paramStructure[key], true) />
 					</cfif>
 				</cfloop>
 		<cfreturn stuRevised />
 	</cffunction>
-	
+
 	<cffunction name="buildParamString" access="private" output="false" returntype="String" hint="I loop through a struct to convert to query params for the URL">
 		<cfargument name="argScope" required="true" type="struct" hint="I am the struct containing the method params" />
 			<cfset var strURLParam 	= '' />
+
 			<cfloop collection="#arguments.argScope#" item="key">
-				<cfif len(arguments.argScope[key])>
+				<cfif structKeyExists(arguments.argScope, key)>
 					<cfif listLen(strURLParam)>
 						<cfset strURLParam = strURLParam & '&' />
 					</cfif>
